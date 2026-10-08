@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscriber churn dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar navigation -->
+    <aside class="side">
+      <div class="brand">Churn dashboard</div>
+      <nav class="nav" aria-label="Sections">
+        <button data-view="overview" class="active">Overview</button>
+        <button data-view="engagement">Engagement</button>
+        <button data-view="revenue">Revenue</button>
+        <button data-view="customers">Customers</button>
+        <button data-view="data">Data quality</button>
+      </nav>
+      <p class="side-foot" id="sideCount"></p>
+    </aside>
+
+    <main class="wrap">
+
+      <header>
+        <div>
+          <h1 id="title">Overview</h1>
+          <p class="sub" id="subtitle"></p>
+        </div>
+        <div class="tools" id="filters">
+          <select id="fCountry" aria-label="Country"></select>
+          <select id="fSub" aria-label="Subscription type"></select>
+          <button id="reset">Reset filters</button>
+        </div>
+      </header>
+
+      <p id="error" class="error" hidden></p>
+
+      <!-- Overview -->
+      <div class="view active" id="view-overview">
+        <section class="top">
+          <div class="card hero">
+            <p>Churn rate</p>
+            <div class="big" id="rate">–</div>
+            <p id="rateSub"></p>
+            <div class="split"><i id="barChurn"></i><i id="barKeep"></i></div>
+            <div class="legend"><span id="legChurn"></span><span id="legKeep"></span></div>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><span>Subscribers</span><b id="kpiTotal">–</b></div>
+            <div class="kpi"><span>Average monthly fee</span><b id="kpiFee">–</b></div>
+            <div class="kpi"><span>Monthly revenue lost</span><b id="kpiLost">–</b></div>
+            <div class="kpi"><span>Avg days since last login</span><b id="kpiLogin">–</b></div>
+          </div>
+        </section>
+        <section class="grid">
+          <div class="card"><h2>Churn by days since last login</h2><p class="note">Share of subscribers who churned in each group</p><div class="chart" id="chLogin"></div></div>
+          <div class="card"><h2>Churn by account age</h2><p class="note">Months since the account was created</p><div class="chart" id="chAge"></div></div>
+          <div class="card"><h2>Churn by subscription type</h2><p class="note">Share of subscribers who churned</p><div class="chart" id="chPlan"></div></div>
+          <div class="card"><h2>Churn by country</h2><p class="note">The ten countries with the most subscribers</p><div class="chart" id="chCountry"></div></div>
+          <div class="card wide">
+            <h2>Churned vs retained</h2>
+            <p class="note">Average value of each metric for the two groups</p>
+            <table>
+              <thead><tr><th>Metric</th><th class="n">Churned</th><th class="n">Retained</th><th class="n">Difference</th></tr></thead>
+              <tbody id="drivers"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Engagement -->
+      <div class="view" id="view-engagement">
+        <section class="grid">
+          <div class="card"><h2>Churn by watch sessions per week</h2><p class="note">How often subscribers watch in a typical week</p><div class="chart" id="chSessions"></div></div>
+          <div class="card"><h2>Churn by completion rate</h2><p class="note">Share of started titles that subscribers finish (%)</p><div class="chart" id="chCompletion"></div></div>
+          <div class="card"><h2>Churn by favorite genre</h2><p class="note">Highest churn first</p><div class="chart" id="chGenre"></div></div>
+          <div class="card"><h2>Churn by primary device</h2><p class="note">Device used most often</p><div class="chart" id="chDevice"></div></div>
+        </section>
+      </div>
+
+      <!-- Revenue -->
+      <div class="view" id="view-revenue">
+        <section class="grid">
+          <div class="card"><h2>Monthly revenue lost by plan</h2><p class="note">Sum of monthly fees from churned subscribers</p><div class="chart" id="chRevPlan"></div></div>
+          <div class="card"><h2>Churn by payment method</h2><p class="note">Share of subscribers who churned</p><div class="chart" id="chPayment"></div></div>
+          <div class="card wide"><h2>Monthly revenue lost by country</h2><p class="note">The ten countries with the largest loss</p><div class="chart" id="chRevCountry"></div></div>
+        </section>
+      </div>
+
+      <!-- Customers -->
+      <div class="view" id="view-customers">
+        <section class="grid">
+          <div class="card"><h2>Churn by age group</h2><p class="note">Subscriber age in years</p><div class="chart" id="chAgeGroup"></div></div>
+          <div class="card"><h2>Churn by gender</h2><p class="note">Share of subscribers who churned</p><div class="chart" id="chGender"></div></div>
+          <div class="card"><h2>Churn by devices used</h2><p class="note">Number of different devices per subscriber</p><div class="chart" id="chDevices"></div></div>
+          <div class="card"><h2>Churn by rating given</h2><p class="note">Rating the subscriber gave</p><div class="chart" id="chRating"></div></div>
+        </section>
+      </div>
+
+      <!-- Data quality -->
+      <div class="view" id="view-data">
+        <section class="grid">
+          <div class="card wide">
+            <h2>Columns in your data</h2>
+            <p class="note" id="dataSummary"></p>
+            <table>
+              <thead><tr><th>Column</th><th>Type</th><th class="n">Filled</th><th>Range or values</th></tr></thead>
+              <tbody id="quality"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="data/data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
